@@ -1,1 +1,217 @@
-<html><body><h1>Cargando dashboard...</h1></body></html>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Validación de Cartillas - QM Cloud</title>
+
+<!-- Esto permite "Agregar a pantalla de inicio" en el celular y que se
+     abra como una app (pantalla completa, sin barra del navegador),
+     tanto en iPhone como en Android. -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Validación QM">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#4472C4">
+<link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KPHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIzNiIgZmlsbD0iIzQ0NzJDNCIvPgo8cGF0aCBkPSJNNTAgMTAwIEw4MiAxMzIgTDE0MiA2MiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxNiIKICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPg==">
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTIgMTkyIj4KPHJlY3Qgd2lkdGg9IjE5MiIgaGVpZ2h0PSIxOTIiIHJ4PSIzNiIgZmlsbD0iIzQ0NzJDNCIvPgo8cGF0aCBkPSJNNTAgMTAwIEw4MiAxMzIgTDE0MiA2MiIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLXdpZHRoPSIxNiIKICAgICAgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBzdHJva2UtbGluZWpvaW49InJvdW5kIi8+Cjwvc3ZnPg==">
+<style>
+  :root { --verde: #92D050; --rojo: #FF0000; --azul: #4472C4; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    background: #f2f4f8; margin: 0; padding: 0; color: #1a1a1a;
+  }
+  header {
+    background: var(--azul); color: white; text-align: center;
+    padding: calc(16px + env(safe-area-inset-top)) 20px 16px;
+  }
+  header h1 { margin: 0; font-size: 1.15rem; }
+  header p { margin: 4px 0 0; font-size: 0.8rem; opacity: 0.85; }
+  .tabs {
+    display: flex; overflow-x: auto; background: white;
+    border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 10;
+  }
+  .tab {
+    flex: 1; min-width: 90px; text-align: center; padding: 12px 8px;
+    font-size: 0.85rem; font-weight: 600; color: #666; cursor: pointer;
+    border-bottom: 3px solid transparent; white-space: nowrap;
+  }
+  .tab.activo { color: var(--azul); border-bottom-color: var(--azul); }
+  .contenido { padding: 12px 14px 40px; max-width: 640px; margin: 0 auto; }
+  .selector-fecha { display: none; background: white; padding: 12px 14px; border-bottom: 1px solid #ddd; }
+  .selector-fecha.visible { display: block; }
+  .selector-fecha input {
+    font-size: 1rem; padding: 8px; border-radius: 8px; border: 1px solid #ccc; width: 100%;
+  }
+  .fecha-titulo { font-size: 0.95rem; color: #555; margin: 4px 0 14px; text-align: center; }
+  .resumen { display: flex; gap: 10px; margin-bottom: 14px; }
+  .resumen div {
+    flex: 1; text-align: center; padding: 10px; border-radius: 10px;
+    font-weight: 700; font-size: 1rem; cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.1s;
+  }
+  .resumen div:active { transform: scale(0.97); }
+  .resumen .ok { background: rgba(146,208,80,0.18); color: #4c7a1e; }
+  .resumen .no { background: rgba(255,0,0,0.12); color: #b30000; }
+  .resumen div.activo { box-shadow: 0 0 0 2px currentColor inset; }
+  ul.lista { list-style: none; margin: 0; padding: 0; }
+  ul.lista li {
+    display: flex; align-items: center; gap: 10px; background: white;
+    border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06); font-size: 0.9rem;
+  }
+  .punto { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .punto.ok { background: var(--verde); }
+  .punto.no { background: var(--rojo); }
+  .vacio { text-align: center; color: #888; padding: 30px 10px; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Validación de Cartillas</h1>
+  <p>QM Cloud &middot; Danper</p>
+</header>
+
+<div class="tabs" id="tabs"></div>
+<div class="selector-fecha" id="selectorFecha">
+  <input type="date" id="inputFecha">
+</div>
+
+<div class="contenido">
+  <div class="fecha-titulo" id="fechaTitulo"></div>
+  <div class="resumen" id="resumen"></div>
+  <ul class="lista" id="lista"></ul>
+</div>
+
+<script>
+const DATOS = [{"cartilla": "01 INSPECCIÓN PT - NAVE 05 EVD", "fecha": "2026-09-09", "ok": true}, {"cartilla": "02 CALIFICACIÓN PRODUCTO EMPACADO", "fecha": "2026-09-09", "ok": true}, {"cartilla": "05 MONITOREO DE PCC", "fecha": "2026-09-09", "ok": true}, {"cartilla": "10 BPM DE PROCESO", "fecha": "2026-09-09", "ok": false}, {"cartilla": "11 INSPECCIÓN FITOSANITARIA PT", "fecha": "2026-09-09", "ok": false}, {"cartilla": "12 BPM INFRAESTRUCTURA EXTERIORES", "fecha": "2026-09-09", "ok": false}, {"cartilla": "13 INSPECCIÓN CONCESIONARIO", "fecha": "2026-09-09", "ok": true}, {"cartilla": "14 MUESTREO DEVOLUCIÓN/ DESCARTE", "fecha": "2026-09-09", "ok": false}, {"cartilla": "17 EVALUACIÓN DE CONTRAMUESTRAS - ESPÁRRAGO", "fecha": "2026-09-09", "ok": true}, {"cartilla": "2. MONITOREO DE LAVADO DE MATERIA PRIMA CLASIFICADA", "fecha": "2026-09-09", "ok": true}, {"cartilla": "28 MONITOREO DE LA MP SELECCIONADA", "fecha": "2026-09-09", "ok": false}, {"cartilla": "29 CARTILLA DE LIBERACIÓN OBSERVADOS", "fecha": "2026-09-09", "ok": false}, {"cartilla": "30 MONITOREO DE DESINFECCIÓN DE PEDILUVIOS, MATERIALES DE PRODUCCIÓN Y UNIDADES DE DESPACHO", "fecha": "2026-09-09", "ok": true}, {"cartilla": "31 GASIFICADO DE PT ESPÁRRAGO FRESCO", "fecha": "2026-09-09", "ok": false}, {"cartilla": "5.1 MONITOREO DE AGUAS", "fecha": "2026-09-09", "ok": true}, {"cartilla": "5.3 MONITOREO LAVADO Y DESINFECCIÓN DE MMPP", "fecha": "2026-09-09", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO RECEPCION", "fecha": "2026-09-09", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO SELECCIÓN", "fecha": "2026-09-09", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (APT)", "fecha": "2026-09-09", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (EMPAQUE)", "fecha": "2026-09-09", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - ACOPIO", "fecha": "2026-09-09", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-09-09", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - ACOPIO", "fecha": "2026-09-09", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-09-09", "ok": false}, {"cartilla": "01 INSPECCIÓN PT - NAVE 05 EVD", "fecha": "2026-09-08", "ok": true}, {"cartilla": "02 CALIFICACIÓN PRODUCTO EMPACADO", "fecha": "2026-09-08", "ok": true}, {"cartilla": "05 MONITOREO DE PCC", "fecha": "2026-09-08", "ok": true}, {"cartilla": "10 BPM DE PROCESO", "fecha": "2026-09-08", "ok": true}, {"cartilla": "11 INSPECCIÓN FITOSANITARIA PT", "fecha": "2026-09-08", "ok": true}, {"cartilla": "12 BPM INFRAESTRUCTURA EXTERIORES", "fecha": "2026-09-08", "ok": false}, {"cartilla": "13 INSPECCIÓN CONCESIONARIO", "fecha": "2026-09-08", "ok": false}, {"cartilla": "14 MUESTREO DEVOLUCIÓN/ DESCARTE", "fecha": "2026-09-08", "ok": true}, {"cartilla": "17 EVALUACIÓN DE CONTRAMUESTRAS - ESPÁRRAGO", "fecha": "2026-09-08", "ok": false}, {"cartilla": "2. MONITOREO DE LAVADO DE MATERIA PRIMA CLASIFICADA", "fecha": "2026-09-08", "ok": false}, {"cartilla": "28 MONITOREO DE LA MP SELECCIONADA", "fecha": "2026-09-08", "ok": false}, {"cartilla": "29 CARTILLA DE LIBERACIÓN OBSERVADOS", "fecha": "2026-09-08", "ok": false}, {"cartilla": "30 MONITOREO DE DESINFECCIÓN DE PEDILUVIOS, MATERIALES DE PRODUCCIÓN Y UNIDADES DE DESPACHO", "fecha": "2026-09-08", "ok": false}, {"cartilla": "31 GASIFICADO DE PT ESPÁRRAGO FRESCO", "fecha": "2026-09-08", "ok": false}, {"cartilla": "5.1 MONITOREO DE AGUAS", "fecha": "2026-09-08", "ok": false}, {"cartilla": "5.3 MONITOREO LAVADO Y DESINFECCIÓN DE MMPP", "fecha": "2026-09-08", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO RECEPCION", "fecha": "2026-09-08", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO SELECCIÓN", "fecha": "2026-09-08", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (APT)", "fecha": "2026-09-08", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (EMPAQUE)", "fecha": "2026-09-08", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - ACOPIO", "fecha": "2026-09-08", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-09-08", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - ACOPIO", "fecha": "2026-09-08", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-09-08", "ok": true}, {"cartilla": "01 INSPECCIÓN PT - NAVE 05 EVD", "fecha": "2026-09-07", "ok": true}, {"cartilla": "02 CALIFICACIÓN PRODUCTO EMPACADO", "fecha": "2026-09-07", "ok": true}, {"cartilla": "05 MONITOREO DE PCC", "fecha": "2026-09-07", "ok": true}, {"cartilla": "10 BPM DE PROCESO", "fecha": "2026-09-07", "ok": true}, {"cartilla": "11 INSPECCIÓN FITOSANITARIA PT", "fecha": "2026-09-07", "ok": false}, {"cartilla": "12 BPM INFRAESTRUCTURA EXTERIORES", "fecha": "2026-09-07", "ok": false}, {"cartilla": "13 INSPECCIÓN CONCESIONARIO", "fecha": "2026-09-07", "ok": true}, {"cartilla": "14 MUESTREO DEVOLUCIÓN/ DESCARTE", "fecha": "2026-09-07", "ok": true}, {"cartilla": "17 EVALUACIÓN DE CONTRAMUESTRAS - ESPÁRRAGO", "fecha": "2026-09-07", "ok": false}, {"cartilla": "2. MONITOREO DE LAVADO DE MATERIA PRIMA CLASIFICADA", "fecha": "2026-09-07", "ok": true}, {"cartilla": "28 MONITOREO DE LA MP SELECCIONADA", "fecha": "2026-09-07", "ok": true}, {"cartilla": "29 CARTILLA DE LIBERACIÓN OBSERVADOS", "fecha": "2026-09-07", "ok": false}, {"cartilla": "30 MONITOREO DE DESINFECCIÓN DE PEDILUVIOS, MATERIALES DE PRODUCCIÓN Y UNIDADES DE DESPACHO", "fecha": "2026-09-07", "ok": true}, {"cartilla": "31 GASIFICADO DE PT ESPÁRRAGO FRESCO", "fecha": "2026-09-07", "ok": false}, {"cartilla": "5.1 MONITOREO DE AGUAS", "fecha": "2026-09-07", "ok": true}, {"cartilla": "5.3 MONITOREO LAVADO Y DESINFECCIÓN DE MMPP", "fecha": "2026-09-07", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO RECEPCION", "fecha": "2026-09-07", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO SELECCIÓN", "fecha": "2026-09-07", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (APT)", "fecha": "2026-09-07", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (EMPAQUE)", "fecha": "2026-09-07", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - ACOPIO", "fecha": "2026-09-07", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-09-07", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - ACOPIO", "fecha": "2026-09-07", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-09-07", "ok": false}, {"cartilla": "01 INSPECCIÓN PT - NAVE 05 EVD", "fecha": "2026-09-06", "ok": true}, {"cartilla": "02 CALIFICACIÓN PRODUCTO EMPACADO", "fecha": "2026-09-06", "ok": false}, {"cartilla": "05 MONITOREO DE PCC", "fecha": "2026-09-06", "ok": true}, {"cartilla": "10 BPM DE PROCESO", "fecha": "2026-09-06", "ok": true}, {"cartilla": "11 INSPECCIÓN FITOSANITARIA PT", "fecha": "2026-09-06", "ok": true}, {"cartilla": "12 BPM INFRAESTRUCTURA EXTERIORES", "fecha": "2026-09-06", "ok": false}, {"cartilla": "13 INSPECCIÓN CONCESIONARIO", "fecha": "2026-09-06", "ok": true}, {"cartilla": "14 MUESTREO DEVOLUCIÓN/ DESCARTE", "fecha": "2026-09-06", "ok": true}, {"cartilla": "17 EVALUACIÓN DE CONTRAMUESTRAS - ESPÁRRAGO", "fecha": "2026-09-06", "ok": false}, {"cartilla": "2. MONITOREO DE LAVADO DE MATERIA PRIMA CLASIFICADA", "fecha": "2026-09-06", "ok": true}, {"cartilla": "28 MONITOREO DE LA MP SELECCIONADA", "fecha": "2026-09-06", "ok": true}, {"cartilla": "29 CARTILLA DE LIBERACIÓN OBSERVADOS", "fecha": "2026-09-06", "ok": false}, {"cartilla": "30 MONITOREO DE DESINFECCIÓN DE PEDILUVIOS, MATERIALES DE PRODUCCIÓN Y UNIDADES DE DESPACHO", "fecha": "2026-09-06", "ok": true}, {"cartilla": "31 GASIFICADO DE PT ESPÁRRAGO FRESCO", "fecha": "2026-09-06", "ok": false}, {"cartilla": "5.1 MONITOREO DE AGUAS", "fecha": "2026-09-06", "ok": true}, {"cartilla": "5.3 MONITOREO LAVADO Y DESINFECCIÓN DE MMPP", "fecha": "2026-09-06", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO RECEPCION", "fecha": "2026-09-06", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO SELECCIÓN", "fecha": "2026-09-06", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (APT)", "fecha": "2026-09-06", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (EMPAQUE)", "fecha": "2026-09-06", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - ACOPIO", "fecha": "2026-09-06", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-09-06", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - ACOPIO", "fecha": "2026-09-06", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-09-06", "ok": true}, {"cartilla": "01 INSPECCIÓN PT - NAVE 05 EVD", "fecha": "2026-08-31", "ok": false}, {"cartilla": "02 CALIFICACIÓN PRODUCTO EMPACADO", "fecha": "2026-08-31", "ok": true}, {"cartilla": "05 MONITOREO DE PCC", "fecha": "2026-08-31", "ok": true}, {"cartilla": "10 BPM DE PROCESO", "fecha": "2026-08-31", "ok": true}, {"cartilla": "11 INSPECCIÓN FITOSANITARIA PT", "fecha": "2026-08-31", "ok": false}, {"cartilla": "12 BPM INFRAESTRUCTURA EXTERIORES", "fecha": "2026-08-31", "ok": false}, {"cartilla": "13 INSPECCIÓN CONCESIONARIO", "fecha": "2026-08-31", "ok": true}, {"cartilla": "14 MUESTREO DEVOLUCIÓN/ DESCARTE", "fecha": "2026-08-31", "ok": true}, {"cartilla": "17 EVALUACIÓN DE CONTRAMUESTRAS - ESPÁRRAGO", "fecha": "2026-08-31", "ok": false}, {"cartilla": "2. MONITOREO DE LAVADO DE MATERIA PRIMA CLASIFICADA", "fecha": "2026-08-31", "ok": true}, {"cartilla": "28 MONITOREO DE LA MP SELECCIONADA", "fecha": "2026-08-31", "ok": false}, {"cartilla": "29 CARTILLA DE LIBERACIÓN OBSERVADOS", "fecha": "2026-08-31", "ok": false}, {"cartilla": "30 MONITOREO DE DESINFECCIÓN DE PEDILUVIOS, MATERIALES DE PRODUCCIÓN Y UNIDADES DE DESPACHO", "fecha": "2026-08-31", "ok": true}, {"cartilla": "31 GASIFICADO DE PT ESPÁRRAGO FRESCO", "fecha": "2026-08-31", "ok": false}, {"cartilla": "5.1 MONITOREO DE AGUAS", "fecha": "2026-08-31", "ok": true}, {"cartilla": "5.3 MONITOREO LAVADO Y DESINFECCIÓN DE MMPP", "fecha": "2026-08-31", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO RECEPCION", "fecha": "2026-08-31", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO SELECCIÓN", "fecha": "2026-08-31", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (APT)", "fecha": "2026-08-31", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (EMPAQUE)", "fecha": "2026-08-31", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - ACOPIO", "fecha": "2026-08-31", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-31", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - ACOPIO", "fecha": "2026-08-31", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-31", "ok": false}, {"cartilla": "01 INSPECCIÓN PT - NAVE 05 EVD", "fecha": "2026-08-30", "ok": true}, {"cartilla": "02 CALIFICACIÓN PRODUCTO EMPACADO", "fecha": "2026-08-30", "ok": true}, {"cartilla": "05 MONITOREO DE PCC", "fecha": "2026-08-30", "ok": true}, {"cartilla": "10 BPM DE PROCESO", "fecha": "2026-08-30", "ok": true}, {"cartilla": "11 INSPECCIÓN FITOSANITARIA PT", "fecha": "2026-08-30", "ok": false}, {"cartilla": "12 BPM INFRAESTRUCTURA EXTERIORES", "fecha": "2026-08-30", "ok": false}, {"cartilla": "13 INSPECCIÓN CONCESIONARIO", "fecha": "2026-08-30", "ok": true}, {"cartilla": "14 MUESTREO DEVOLUCIÓN/ DESCARTE", "fecha": "2026-08-30", "ok": true}, {"cartilla": "17 EVALUACIÓN DE CONTRAMUESTRAS - ESPÁRRAGO", "fecha": "2026-08-30", "ok": false}, {"cartilla": "2. MONITOREO DE LAVADO DE MATERIA PRIMA CLASIFICADA", "fecha": "2026-08-30", "ok": false}, {"cartilla": "28 MONITOREO DE LA MP SELECCIONADA", "fecha": "2026-08-30", "ok": false}, {"cartilla": "29 CARTILLA DE LIBERACIÓN OBSERVADOS", "fecha": "2026-08-30", "ok": false}, {"cartilla": "30 MONITOREO DE DESINFECCIÓN DE PEDILUVIOS, MATERIALES DE PRODUCCIÓN Y UNIDADES DE DESPACHO", "fecha": "2026-08-30", "ok": true}, {"cartilla": "31 GASIFICADO DE PT ESPÁRRAGO FRESCO", "fecha": "2026-08-30", "ok": false}, {"cartilla": "5.1 MONITOREO DE AGUAS", "fecha": "2026-08-30", "ok": true}, {"cartilla": "5.3 MONITOREO LAVADO Y DESINFECCIÓN DE MMPP", "fecha": "2026-08-30", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO RECEPCION", "fecha": "2026-08-30", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO SELECCIÓN", "fecha": "2026-08-30", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (APT)", "fecha": "2026-08-30", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (EMPAQUE)", "fecha": "2026-08-30", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - ACOPIO", "fecha": "2026-08-30", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-30", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - ACOPIO", "fecha": "2026-08-30", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-30", "ok": true}, {"cartilla": "01 INSPECCIÓN PT - NAVE 05 EVD", "fecha": "2026-08-29", "ok": false}, {"cartilla": "02 CALIFICACIÓN PRODUCTO EMPACADO", "fecha": "2026-08-29", "ok": true}, {"cartilla": "05 MONITOREO DE PCC", "fecha": "2026-08-29", "ok": true}, {"cartilla": "10 BPM DE PROCESO", "fecha": "2026-08-29", "ok": true}, {"cartilla": "11 INSPECCIÓN FITOSANITARIA PT", "fecha": "2026-08-29", "ok": true}, {"cartilla": "12 BPM INFRAESTRUCTURA EXTERIORES", "fecha": "2026-08-29", "ok": false}, {"cartilla": "13 INSPECCIÓN CONCESIONARIO", "fecha": "2026-08-29", "ok": true}, {"cartilla": "14 MUESTREO DEVOLUCIÓN/ DESCARTE", "fecha": "2026-08-29", "ok": true}, {"cartilla": "17 EVALUACIÓN DE CONTRAMUESTRAS - ESPÁRRAGO", "fecha": "2026-08-29", "ok": false}, {"cartilla": "2. MONITOREO DE LAVADO DE MATERIA PRIMA CLASIFICADA", "fecha": "2026-08-29", "ok": true}, {"cartilla": "28 MONITOREO DE LA MP SELECCIONADA", "fecha": "2026-08-29", "ok": false}, {"cartilla": "29 CARTILLA DE LIBERACIÓN OBSERVADOS", "fecha": "2026-08-29", "ok": false}, {"cartilla": "30 MONITOREO DE DESINFECCIÓN DE PEDILUVIOS, MATERIALES DE PRODUCCIÓN Y UNIDADES DE DESPACHO", "fecha": "2026-08-29", "ok": true}, {"cartilla": "31 GASIFICADO DE PT ESPÁRRAGO FRESCO", "fecha": "2026-08-29", "ok": false}, {"cartilla": "5.1 MONITOREO DE AGUAS", "fecha": "2026-08-29", "ok": true}, {"cartilla": "5.3 MONITOREO LAVADO Y DESINFECCIÓN DE MMPP", "fecha": "2026-08-29", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO RECEPCION", "fecha": "2026-08-29", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO SELECCIÓN", "fecha": "2026-08-29", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (APT)", "fecha": "2026-08-29", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (EMPAQUE)", "fecha": "2026-08-29", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - ACOPIO", "fecha": "2026-08-29", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-29", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - ACOPIO", "fecha": "2026-08-29", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-29", "ok": true}, {"cartilla": "01 INSPECCIÓN PT - NAVE 05 EVD", "fecha": "2026-08-27", "ok": false}, {"cartilla": "02 CALIFICACIÓN PRODUCTO EMPACADO", "fecha": "2026-08-27", "ok": true}, {"cartilla": "05 MONITOREO DE PCC", "fecha": "2026-08-27", "ok": true}, {"cartilla": "10 BPM DE PROCESO", "fecha": "2026-08-27", "ok": false}, {"cartilla": "11 INSPECCIÓN FITOSANITARIA PT", "fecha": "2026-08-27", "ok": false}, {"cartilla": "12 BPM INFRAESTRUCTURA EXTERIORES", "fecha": "2026-08-27", "ok": false}, {"cartilla": "13 INSPECCIÓN CONCESIONARIO", "fecha": "2026-08-27", "ok": false}, {"cartilla": "14 MUESTREO DEVOLUCIÓN/ DESCARTE", "fecha": "2026-08-27", "ok": false}, {"cartilla": "17 EVALUACIÓN DE CONTRAMUESTRAS - ESPÁRRAGO", "fecha": "2026-08-27", "ok": false}, {"cartilla": "2. MONITOREO DE LAVADO DE MATERIA PRIMA CLASIFICADA", "fecha": "2026-08-27", "ok": false}, {"cartilla": "28 MONITOREO DE LA MP SELECCIONADA", "fecha": "2026-08-27", "ok": false}, {"cartilla": "29 CARTILLA DE LIBERACIÓN OBSERVADOS", "fecha": "2026-08-27", "ok": false}, {"cartilla": "30 MONITOREO DE DESINFECCIÓN DE PEDILUVIOS, MATERIALES DE PRODUCCIÓN Y UNIDADES DE DESPACHO", "fecha": "2026-08-27", "ok": true}, {"cartilla": "31 GASIFICADO DE PT ESPÁRRAGO FRESCO", "fecha": "2026-08-27", "ok": false}, {"cartilla": "5.1 MONITOREO DE AGUAS", "fecha": "2026-08-27", "ok": true}, {"cartilla": "5.3 MONITOREO LAVADO Y DESINFECCIÓN DE MMPP", "fecha": "2026-08-27", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO RECEPCION", "fecha": "2026-08-27", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO SELECCIÓN", "fecha": "2026-08-27", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (APT)", "fecha": "2026-08-27", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (EMPAQUE)", "fecha": "2026-08-27", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - ACOPIO", "fecha": "2026-08-27", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-27", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - ACOPIO", "fecha": "2026-08-27", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-27", "ok": false}, {"cartilla": "01 INSPECCIÓN PT - NAVE 05 EVD", "fecha": "2026-08-26", "ok": false}, {"cartilla": "02 CALIFICACIÓN PRODUCTO EMPACADO", "fecha": "2026-08-26", "ok": false}, {"cartilla": "05 MONITOREO DE PCC", "fecha": "2026-08-26", "ok": false}, {"cartilla": "10 BPM DE PROCESO", "fecha": "2026-08-26", "ok": false}, {"cartilla": "11 INSPECCIÓN FITOSANITARIA PT", "fecha": "2026-08-26", "ok": false}, {"cartilla": "12 BPM INFRAESTRUCTURA EXTERIORES", "fecha": "2026-08-26", "ok": false}, {"cartilla": "13 INSPECCIÓN CONCESIONARIO", "fecha": "2026-08-26", "ok": false}, {"cartilla": "14 MUESTREO DEVOLUCIÓN/ DESCARTE", "fecha": "2026-08-26", "ok": false}, {"cartilla": "17 EVALUACIÓN DE CONTRAMUESTRAS - ESPÁRRAGO", "fecha": "2026-08-26", "ok": false}, {"cartilla": "2. MONITOREO DE LAVADO DE MATERIA PRIMA CLASIFICADA", "fecha": "2026-08-26", "ok": false}, {"cartilla": "28 MONITOREO DE LA MP SELECCIONADA", "fecha": "2026-08-26", "ok": false}, {"cartilla": "29 CARTILLA DE LIBERACIÓN OBSERVADOS", "fecha": "2026-08-26", "ok": false}, {"cartilla": "30 MONITOREO DE DESINFECCIÓN DE PEDILUVIOS, MATERIALES DE PRODUCCIÓN Y UNIDADES DE DESPACHO", "fecha": "2026-08-26", "ok": true}, {"cartilla": "31 GASIFICADO DE PT ESPÁRRAGO FRESCO", "fecha": "2026-08-26", "ok": false}, {"cartilla": "5.1 MONITOREO DE AGUAS", "fecha": "2026-08-26", "ok": false}, {"cartilla": "5.3 MONITOREO LAVADO Y DESINFECCIÓN DE MMPP", "fecha": "2026-08-26", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO RECEPCION", "fecha": "2026-08-26", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO SELECCIÓN", "fecha": "2026-08-26", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (APT)", "fecha": "2026-08-26", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (EMPAQUE)", "fecha": "2026-08-26", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - ACOPIO", "fecha": "2026-08-26", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-26", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - ACOPIO", "fecha": "2026-08-26", "ok": false}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-26", "ok": false}, {"cartilla": "01 INSPECCIÓN PT - NAVE 05 EVD", "fecha": "2026-08-25", "ok": true}, {"cartilla": "02 CALIFICACIÓN PRODUCTO EMPACADO", "fecha": "2026-08-25", "ok": true}, {"cartilla": "05 MONITOREO DE PCC", "fecha": "2026-08-25", "ok": true}, {"cartilla": "10 BPM DE PROCESO", "fecha": "2026-08-25", "ok": true}, {"cartilla": "11 INSPECCIÓN FITOSANITARIA PT", "fecha": "2026-08-25", "ok": false}, {"cartilla": "12 BPM INFRAESTRUCTURA EXTERIORES", "fecha": "2026-08-25", "ok": false}, {"cartilla": "13 INSPECCIÓN CONCESIONARIO", "fecha": "2026-08-25", "ok": true}, {"cartilla": "14 MUESTREO DEVOLUCIÓN/ DESCARTE", "fecha": "2026-08-25", "ok": true}, {"cartilla": "17 EVALUACIÓN DE CONTRAMUESTRAS - ESPÁRRAGO", "fecha": "2026-08-25", "ok": false}, {"cartilla": "2. MONITOREO DE LAVADO DE MATERIA PRIMA CLASIFICADA", "fecha": "2026-08-25", "ok": true}, {"cartilla": "28 MONITOREO DE LA MP SELECCIONADA", "fecha": "2026-08-25", "ok": true}, {"cartilla": "29 CARTILLA DE LIBERACIÓN OBSERVADOS", "fecha": "2026-08-25", "ok": false}, {"cartilla": "30 MONITOREO DE DESINFECCIÓN DE PEDILUVIOS, MATERIALES DE PRODUCCIÓN Y UNIDADES DE DESPACHO", "fecha": "2026-08-25", "ok": true}, {"cartilla": "31 GASIFICADO DE PT ESPÁRRAGO FRESCO", "fecha": "2026-08-25", "ok": false}, {"cartilla": "5.1 MONITOREO DE AGUAS", "fecha": "2026-08-25", "ok": true}, {"cartilla": "5.3 MONITOREO LAVADO Y DESINFECCIÓN DE MMPP", "fecha": "2026-08-25", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO RECEPCION", "fecha": "2026-08-25", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - ACOPIO SELECCIÓN", "fecha": "2026-08-25", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (APT)", "fecha": "2026-08-25", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE EQUIPOS - PRODUCCIÓN (EMPAQUE)", "fecha": "2026-08-25", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - ACOPIO", "fecha": "2026-08-25", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE INFRAESTRUCTURA - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-25", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - ACOPIO", "fecha": "2026-08-25", "ok": true}, {"cartilla": "VERIFICACIÓN DE HIGIENE DE UTENSILIOS - PRODUCCIÓN (EMPAQUE Y APT)", "fecha": "2026-08-25", "ok": true}];
+
+const porFecha = {};
+for (const registro of DATOS) {
+  if (!porFecha[registro.fecha]) porFecha[registro.fecha] = [];
+  porFecha[registro.fecha].push(registro);
+}
+
+function formatearFechaLocal(d) {
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function formatearFechaBonita(fechaStr) {
+  const [yyyy, mm, dd] = fechaStr.split('-');
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+function formatearFechaCorta(d) {
+  const dd = String(d.getDate()).padStart(2, '0');
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  return `${dd}/${mm}`;
+}
+
+const hoy = new Date();
+const ayer = new Date(hoy); ayer.setDate(hoy.getDate() - 1);
+const anteayer = new Date(hoy); anteayer.setDate(hoy.getDate() - 2);
+
+const pestanas = [
+  { id: 'hoy', label: 'Hoy', fecha: formatearFechaLocal(hoy) },
+  { id: 'ayer', label: formatearFechaCorta(ayer), fecha: formatearFechaLocal(ayer) },
+  { id: 'anteayer', label: formatearFechaCorta(anteayer), fecha: formatearFechaLocal(anteayer) },
+  { id: 'otra', label: 'Otra fecha', fecha: null },
+];
+
+const tabsEl = document.getElementById('tabs');
+const selectorFechaEl = document.getElementById('selectorFecha');
+const inputFechaEl = document.getElementById('inputFecha');
+
+pestanas.forEach(p => {
+  const el = document.createElement('div');
+  el.className = 'tab';
+  el.textContent = p.label;
+  el.dataset.id = p.id;
+  el.addEventListener('click', () => seleccionarPestana(p.id));
+  tabsEl.appendChild(el);
+});
+
+function seleccionarPestana(id) {
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('activo', t.dataset.id === id);
+  });
+
+  const p = pestanas.find(x => x.id === id);
+  if (id === 'otra') {
+    selectorFechaEl.classList.add('visible');
+    const fechaElegida = inputFechaEl.value || formatearFechaLocal(hoy);
+    inputFechaEl.value = fechaElegida;
+    mostrarFecha(fechaElegida);
+  } else {
+    selectorFechaEl.classList.remove('visible');
+    mostrarFecha(p.fecha);
+  }
+}
+
+inputFechaEl.addEventListener('change', () => mostrarFecha(inputFechaEl.value));
+
+let registrosActuales = [];
+let filtroActivo = null;  // null = todos, true = solo OK, false = solo SIN DATOS
+
+function mostrarFecha(fechaStr) {
+  registrosActuales = porFecha[fechaStr] || [];
+  filtroActivo = null;  // al cambiar de fecha, empezamos sin filtro aplicado
+  document.getElementById('fechaTitulo').textContent = formatearFechaBonita(fechaStr);
+  renderizarResumenYLista();
+}
+
+function renderizarResumenYLista() {
+  const resumenEl = document.getElementById('resumen');
+  const listaEl = document.getElementById('lista');
+
+  if (registrosActuales.length === 0) {
+    resumenEl.innerHTML = '';
+    listaEl.innerHTML = '<div class="vacio">No hay registros guardados para esta fecha.</div>';
+    return;
+  }
+
+  const okCount = registrosActuales.filter(r => r.ok).length;
+  const noCount = registrosActuales.length - okCount;
+  resumenEl.innerHTML = `
+    <div class="ok${filtroActivo === true ? ' activo' : ''}" id="cajaOk">${okCount} OK</div>
+    <div class="no${filtroActivo === false ? ' activo' : ''}" id="cajaNo">${noCount} SIN DATOS</div>
+  `;
+  document.getElementById('cajaOk').addEventListener('click', () => {
+    filtroActivo = (filtroActivo === true) ? null : true;
+    renderizarResumenYLista();
+  });
+  document.getElementById('cajaNo').addEventListener('click', () => {
+    filtroActivo = (filtroActivo === false) ? null : false;
+    renderizarResumenYLista();
+  });
+
+  let registrosMostrados = registrosActuales;
+  if (filtroActivo === true) registrosMostrados = registrosActuales.filter(r => r.ok);
+  if (filtroActivo === false) registrosMostrados = registrosActuales.filter(r => !r.ok);
+
+  listaEl.innerHTML = '';
+  if (registrosMostrados.length === 0) {
+    listaEl.innerHTML = '<div class="vacio">No hay cartillas en este estado.</div>';
+    return;
+  }
+
+  registrosMostrados
+    .slice()
+    .sort((a, b) => a.cartilla.localeCompare(b.cartilla))
+    .forEach(r => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="punto ${r.ok ? 'ok' : 'no'}"></span><span>${r.cartilla}</span>`;
+      listaEl.appendChild(li);
+    });
+}
+
+seleccionarPestana('hoy');
+</script>
+
+</body>
+</html>
